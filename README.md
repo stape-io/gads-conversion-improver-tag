@@ -16,7 +16,7 @@ If you use Stape, **you can enable the Google connection in the container settin
 - **Conversion Value** – Value of the conversion. If not set, will be extracted from `conversionValue`, `value`, or `x-ga-mp1-ev` in Event Data.
 - **Currency Code** – Currency of the conversion. If not set, will be extracted from Event Data.
 - **Order ID** – Unique order identifier. Used for deduplication.
-- **Conversion DateTime** – Timestamp of the conversion. Must follow the format `yyyy-mm-dd hh:mm:ss+|-hh:mm`. If not set, the current time is used.
+- **Conversion DateTime** – Timestamp of the conversion. Must follow the formats: `Unix timestamp` (seconds or milliseconds) or `yyyy-mm-dd hh:mm:ss+|-hh:mm`. If not set, the current time is used.
 - **Gclid / Gbraid / Wbraid** – Google Click IDs used for attribution.
 - **User Identifiers** – Email or phone hashed with SHA256. Used for Enhanced Conversions.
 - **Merchant Center Feed Info** – Includes merchant ID, feed country/language codes, and cart-level discounts.
