@@ -624,7 +624,6 @@ if (url && url.lastIndexOf('https://gtm-msr.appspot.com/', 0) === 0) {
   return data.gtmOnSuccess();
 }
 
-// 1st - Query Google Ads to see if the conversion was recorded or not. Use Conversion Adjustments.
 sendConversionRequestForConversionAdjustment()
   .then((body) => {
     if (!body) return;
@@ -644,7 +643,7 @@ sendConversionRequestForConversionAdjustment()
   })
   .catch((result) => {
     log({
-      Name: 'GAdsConversionAdjustments + GAdsOfflineConversion',
+      Name: 'GAdsConversionImprover',
       Type: 'Message',
       TraceId: traceId,
       EventName: 'Outmost .catch',
@@ -660,7 +659,6 @@ if (data.useOptimisticScenario) {
 /**********************************************************************************************/
 // Vendor related functions
 
-// Only for Adjustment
 function sendConversionRequestForConversionAdjustment() {
   const postUrlForConversionAdjustment = getUrlForConversionAdjustment();
   const postBodyForConversionAdjustment = getDataForConversionAdjustment();
@@ -668,7 +666,7 @@ function sendConversionRequestForConversionAdjustment() {
   // No data available to send an ENHANCEMENT or RESTATEMENT. Abort.
   if (!postBodyForConversionAdjustment) {
     log({
-      Name: 'GAdsConversionAdjustments',
+      Name: 'GAdsConversionImprover',
       Type: 'Message',
       TraceId: traceId,
       EventName: makeString(data.conversionActionSource),
@@ -697,10 +695,10 @@ function sendConversionRequestForConversionAdjustment() {
   }
 
   log({
-    Name: 'GAdsConversionAdjustments',
+    Name: 'GAdsConversionImprover',
     Type: 'Request',
     TraceId: traceId,
-    EventName: makeString(data.conversionActionSource),
+    EventName: 'Adjustment ' + makeString(data.conversionActionSource),
     RequestMethod: 'POST',
     RequestUrl: postUrlForConversionAdjustment,
     RequestBody: postBodyForConversionAdjustment
@@ -713,10 +711,10 @@ function sendConversionRequestForConversionAdjustment() {
   ).then((result) => {
     // .then has to be used when the Authorization header is in use
     log({
-      Name: 'GAdsConversionAdjustments',
+      Name: 'GAdsConversionImprover',
       Type: 'Response',
       TraceId: traceId,
-      EventName: makeString(data.conversionActionSource),
+      EventName: 'Adjustment ' + makeString(data.conversionActionSource),
       ResponseStatusCode: result.statusCode,
       ResponseHeaders: result.headers,
       ResponseBody: result.body
@@ -730,7 +728,6 @@ function sendConversionRequestForConversionAdjustment() {
   });
 }
 
-// Only for Adjustment
 function getUrlForConversionAdjustment() {
   if (data.authFlow === 'own') {
     const apiVersion = '18';
@@ -757,7 +754,6 @@ function getUrlForConversionAdjustment() {
   );
 }
 
-// Only for Adjustment
 function getDataForConversionAdjustment() {
   let mappedData = {
     conversionAction:
@@ -798,13 +794,11 @@ function getDataForConversionAdjustment() {
   };
 }
 
-// Only for Adjustment
 function addConversionAttributionForConversionAdjustment(
   eventData,
   mappedData
 ) {
   // It must not use gclid, gbraid or wbraid in conjunction with Order ID.
-
   const adjustedValue = makeNumber(
     data.conversionValue ||
       eventData.conversionValue ||
@@ -836,7 +830,6 @@ function addConversionAttributionForConversionAdjustment(
   return mappedData;
 }
 
-// Only for Offline Conversion
 function sendConversionRequestForOfflineConversion() {
   const postUrlForOfflineConversion = getUrlForOfflineConversion();
   const postBodyForOfflineConversion = getDataForOfflineConversion();
@@ -859,10 +852,11 @@ function sendConversionRequestForOfflineConversion() {
   }
 
   log({
-    Name: 'GAdsOfflineConversion',
+    Name: 'GAdsConversionImprover',
     Type: 'Request',
     TraceId: traceId,
-    EventName: makeString(data.conversionActionDestination),
+    EventName:
+      'Offline Conversion ' + makeString(data.conversionActionDestination),
     RequestMethod: 'POST',
     RequestUrl: postUrlForOfflineConversion,
     RequestBody: postBodyForOfflineConversion
@@ -875,10 +869,11 @@ function sendConversionRequestForOfflineConversion() {
   ).then((result) => {
     // .then has to be used when the Authorization header is in use
     log({
-      Name: 'GAdsOfflineConversion',
+      Name: 'GAdsConversionImprover',
       Type: 'Response',
       TraceId: traceId,
-      EventName: makeString(data.conversionActionDestination),
+      EventName:
+        'Offline Conversion ' + makeString(data.conversionActionDestination),
       ResponseStatusCode: result.statusCode,
       ResponseHeaders: result.headers,
       ResponseBody: result.body
@@ -894,7 +889,6 @@ function sendConversionRequestForOfflineConversion() {
   });
 }
 
-// Only for Offline Conversion
 function getUrlForOfflineConversion() {
   if (data.authFlow === 'own') {
     const apiVersion = '18';
@@ -921,7 +915,6 @@ function getUrlForOfflineConversion() {
   );
 }
 
-// Only for Offline Conversion
 function getDataForOfflineConversion() {
   let mappedData = {
     conversionEnvironment: 'WEB',
@@ -977,7 +970,6 @@ function getDataForOfflineConversion() {
   };
 }
 
-// Only for Offline Conversion
 function addConversionAttributionForOfflineConversion(eventData, mappedData) {
   const gbraid = data.gbraid || eventData.gbraid;
   const wbraid = data.wbraid || eventData.wbraid;
@@ -1004,7 +996,6 @@ function addConversionAttributionForOfflineConversion(eventData, mappedData) {
   return mappedData;
 }
 
-// Only for Offline Conversion
 function addCartDataForOfflineConversion(eventData, mappedData) {
   let currencyFromItems = '';
   let valueFromItems = 0;
@@ -1102,7 +1093,6 @@ function addCartDataForOfflineConversion(eventData, mappedData) {
   return mappedData;
 }
 
-// Only for Offline Conversion
 function addConsentDataForOfflineConversion(mappedData) {
   const adUserData = data.adUserData;
   const adPersonalization = data.adPersonalization;
@@ -1121,7 +1111,6 @@ function addConsentDataForOfflineConversion(mappedData) {
   return mappedData;
 }
 
-// Common
 function addUserIdentifiers(eventData, mappedData) {
   // Adjustments only accepts hashedEmail, hashedPhone and addressInfo.
   // Offline Conversions only accepts hashedEmail and hashedPhone.
@@ -1203,7 +1192,6 @@ function addUserIdentifiers(eventData, mappedData) {
   return mappedData;
 }
 
-// Common
 function getConversionDateTime(timestamp) {
   if (!timestamp) return convertTimestampToISO(getTimestampMillis());
 
@@ -1218,7 +1206,6 @@ function getConversionDateTime(timestamp) {
   return timestamp;
 }
 
-// Common
 function hashData(key, value) {
   if (!value) {
     return value;
@@ -1275,7 +1262,6 @@ function hashData(key, value) {
   return sha256Sync(value, { outputEncoding: 'hex' });
 }
 
-// Common
 function convertTimestampToISO(timestamp) {
   const secToMs = function (s) {
     return s * 1000;
@@ -1371,7 +1357,6 @@ function log(rawDataToLog) {
   if (determinateIsLoggingEnabledForBigQuery())
     logDestinationsHandlers.bigQuery = logToBigQuery;
 
-  // Key mappings for each log destination
   const keyMappings = {
     // No transformation for Console is needed.
     bigQuery: {
@@ -1394,10 +1379,10 @@ function log(rawDataToLog) {
 
     const mapping = keyMappings[logDestination];
     const dataToLog = mapping ? {} : rawDataToLog;
-    // Map keys based on the log destination
+
     if (mapping) {
       for (const key in rawDataToLog) {
-        const mappedKey = mapping[key] || key; // Fallback to original key if no mapping exists
+        const mappedKey = mapping[key] || key;
         dataToLog[mappedKey] = rawDataToLog[key];
       }
     }
@@ -1417,18 +1402,12 @@ function logToBigQuery(dataToLog) {
     tableId: data.logBigQueryTableId
   };
 
-  // timestamp is required.
   dataToLog.timestamp = getTimestampMillis();
 
-  // Columns with type JSON need to be stringified.
   ['request_body', 'response_headers', 'response_body'].forEach((p) => {
-    // GTM Sandboxed JSON.parse returns undefined for malformed JSON but throws post-execution, causing execution failure.
-    // If fixed, could use: dataToLog[p] = JSON.stringify(JSON.parse(dataToLog[p]) || dataToLog[p]);
     dataToLog[p] = JSON.stringify(dataToLog[p]);
   });
 
-  // assertApi doesn't work for 'BigQuery.insert()'. It's needed to convert BigQuery into a function when testing.
-  // Ref: https://gtm-gear.com/posts/gtm-templates-testing/
   const bigquery =
     getType(BigQuery) === 'function'
       ? BigQuery() /* Only during Unit Tests */
