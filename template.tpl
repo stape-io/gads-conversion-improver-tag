@@ -730,7 +730,7 @@ function sendConversionRequestForConversionAdjustment() {
 
 function getUrlForConversionAdjustment() {
   if (data.authFlow === 'own') {
-    const apiVersion = '18';
+    const apiVersion = '20';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
