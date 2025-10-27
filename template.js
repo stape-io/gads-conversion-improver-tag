@@ -138,7 +138,7 @@ function sendConversionRequestForConversionAdjustment() {
 
 function getUrlForConversionAdjustment() {
   if (data.authFlow === 'own') {
-    const apiVersion = '20';
+    const apiVersion = '22';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
@@ -299,7 +299,7 @@ function sendConversionRequestForOfflineConversion() {
 
 function getUrlForOfflineConversion() {
   if (data.authFlow === 'own') {
-    const apiVersion = '18';
+    const apiVersion = '22';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
