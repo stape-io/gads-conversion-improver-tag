@@ -89,10 +89,14 @@ function sendConversionRequestForConversionAdjustment() {
   const options = {
     headers: {
       'Content-Type': 'application/json',
-      'login-customer-id': data.customerId
+      'login-customer-id': data.customerId,
     },
     method: 'POST'
   };
+
+  if(data.authFlow === 'stape'){
+    options.headers['x-gads-api-version']='22'
+  }
 
   if (data.authFlow === 'own') {
     const auth = getGoogleAuth({
@@ -250,6 +254,10 @@ function sendConversionRequestForOfflineConversion() {
     method: 'POST',
     timeout: 15000
   };
+
+    if(data.authFlow === 'stape'){
+    options.headers['x-gads-api-version']='22'
+  }
 
   if (data.authFlow === 'own') {
     const auth = getGoogleAuth({
