@@ -20,7 +20,7 @@ const Promise = require('Promise');
 /**********************************************************************************************/
 
 const traceId = getRequestHeader('trace-id');
-
+const apiVersion = '22';
 const eventData = getAllEventData();
 
 if (!isConsentGivenOrNotRequired()) {
@@ -95,7 +95,7 @@ function sendConversionRequestForConversionAdjustment() {
   };
 
   if(data.authFlow === 'stape'){
-    options.headers['x-gads-api-version']='22'
+    options.headers['x-gads-api-version']=apiVersion;
   }
 
   if (data.authFlow === 'own') {
@@ -142,7 +142,6 @@ function sendConversionRequestForConversionAdjustment() {
 
 function getUrlForConversionAdjustment() {
   if (data.authFlow === 'own') {
-    const apiVersion = '22';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
@@ -256,7 +255,7 @@ function sendConversionRequestForOfflineConversion() {
   };
 
     if(data.authFlow === 'stape'){
-    options.headers['x-gads-api-version']='22'
+    options.headers['x-gads-api-version']=apiVersion;
   }
 
   if (data.authFlow === 'own') {
@@ -307,7 +306,6 @@ function sendConversionRequestForOfflineConversion() {
 
 function getUrlForOfflineConversion() {
   if (data.authFlow === 'own') {
-    const apiVersion = '22';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
