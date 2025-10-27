@@ -1,4 +1,4 @@
-___TERMS_OF_SERVICE___
+﻿___TERMS_OF_SERVICE___
 
 By creating or modifying this file you agree to Google Tag Manager's Community
 Template Gallery Developer Terms of Service available at
@@ -12,7 +12,6 @@ ___INFO___
   "type": "TAG",
   "id": "cvt_temp_public_id",
   "version": 1,
-  "securityGroups": [],
   "displayName": "Google Ads Conversion Improver Tag",
   "brand": {
     "id": "brand_dummy",
@@ -22,7 +21,8 @@ ___INFO___
   "description": "This tag queries if a conversion has been attributed or not in Google Ads, and it sends it again using the Google Ads Offline Conversion API.",
   "containerContexts": [
     "SERVER"
-  ]
+  ],
+  "securityGroups": []
 }
 
 
@@ -730,7 +730,7 @@ function sendConversionRequestForConversionAdjustment() {
 
 function getUrlForConversionAdjustment() {
   if (data.authFlow === 'own') {
-    const apiVersion = '20';
+    const apiVersion = '22';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
@@ -891,7 +891,7 @@ function sendConversionRequestForOfflineConversion() {
 
 function getUrlForOfflineConversion() {
   if (data.authFlow === 'own') {
-    const apiVersion = '18';
+    const apiVersion = '22';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
@@ -1767,4 +1767,5 @@ setup: ''
 ___NOTES___
 
 Created on 5/14/2025, 10:28:53 AM
+
 
