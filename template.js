@@ -373,8 +373,6 @@ function getDataForOfflineConversion() {
     partialFailure: true,
     validateOnly:
       data.validateOnly === true || data.validateOnly === 'true' || false,
-    debugEnabled:
-      data.debugEnabled === true || data.debugEnabled === 'true' || false
   };
 }
 
