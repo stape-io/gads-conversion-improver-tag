@@ -17,13 +17,13 @@ const getGoogleAuth = require('getGoogleAuth');
 const BigQuery = require('BigQuery');
 const Promise = require('Promise');
 
-/**********************************************************************************************/
+/*==============================================================================
+==============================================================================*/
 
-const traceId = getRequestHeader('trace-id');
 const apiVersion = '22';
 const eventData = getAllEventData();
 
-if (!isConsentGivenOrNotRequired()) {
+if (!isConsentGivenOrNotRequired(data, eventData)) {
   return data.gtmOnSuccess();
 }
 
@@ -53,7 +53,6 @@ sendConversionRequestForConversionAdjustment()
     log({
       Name: 'GAdsConversionImprover',
       Type: 'Message',
-      TraceId: traceId,
       EventName: 'Outmost .catch',
       Message: JSON.stringify(result)
     });
@@ -64,8 +63,9 @@ if (data.useOptimisticScenario) {
   return data.gtmOnSuccess();
 }
 
-/**********************************************************************************************/
-// Vendor related functions
+/*==============================================================================
+  Vendor related functions
+==============================================================================*/
 
 function sendConversionRequestForConversionAdjustment() {
   const postUrlForConversionAdjustment = getUrlForConversionAdjustment();
@@ -76,7 +76,6 @@ function sendConversionRequestForConversionAdjustment() {
     log({
       Name: 'GAdsConversionImprover',
       Type: 'Message',
-      TraceId: traceId,
       EventName: makeString(data.conversionActionSource),
       Message:
         'Did not try to send Conversion Adjustment (ENHANCEMENT or RESTATEMENT).',
@@ -96,9 +95,7 @@ function sendConversionRequestForConversionAdjustment() {
 
   if (data.authFlow === 'stape') {
     options.headers['x-gads-api-version'] = apiVersion;
-  }
-  
-  if (data.authFlow === 'own') {
+  } else if (data.authFlow === 'own') {
     const auth = getGoogleAuth({
       scopes: ['https://www.googleapis.com/auth/adwords']
     });
@@ -109,7 +106,6 @@ function sendConversionRequestForConversionAdjustment() {
   log({
     Name: 'GAdsConversionImprover',
     Type: 'Request',
-    TraceId: traceId,
     EventName: 'Adjustment ' + makeString(data.conversionActionSource),
     RequestMethod: 'POST',
     RequestUrl: postUrlForConversionAdjustment,
@@ -125,7 +121,6 @@ function sendConversionRequestForConversionAdjustment() {
     log({
       Name: 'GAdsConversionImprover',
       Type: 'Response',
-      TraceId: traceId,
       EventName: 'Adjustment ' + makeString(data.conversionActionSource),
       ResponseStatusCode: result.statusCode,
       ResponseHeaders: result.headers,
@@ -256,9 +251,7 @@ function sendConversionRequestForOfflineConversion() {
 
   if (data.authFlow === 'stape') {
     options.headers['x-gads-api-version'] = apiVersion;
-  }
-
-  if (data.authFlow === 'own') {
+  } else if (data.authFlow === 'own') {
     const auth = getGoogleAuth({
       scopes: ['https://www.googleapis.com/auth/adwords']
     });
@@ -269,7 +262,6 @@ function sendConversionRequestForOfflineConversion() {
   log({
     Name: 'GAdsConversionImprover',
     Type: 'Request',
-    TraceId: traceId,
     EventName:
       'Offline Conversion ' + makeString(data.conversionActionDestination),
     RequestMethod: 'POST',
@@ -286,7 +278,6 @@ function sendConversionRequestForOfflineConversion() {
     log({
       Name: 'GAdsConversionImprover',
       Type: 'Response',
-      TraceId: traceId,
       EventName:
         'Offline Conversion ' + makeString(data.conversionActionDestination),
       ResponseStatusCode: result.statusCode,
@@ -378,7 +369,7 @@ function getDataForOfflineConversion() {
     conversions: [mappedData],
     partialFailure: true,
     validateOnly:
-      data.validateOnly === true || data.validateOnly === 'true' || false,
+      data.validateOnly === true || data.validateOnly === 'true' || false
   };
 }
 
@@ -387,11 +378,9 @@ function addConversionAttributionForOfflineConversion(eventData, mappedData) {
   const wbraid = data.wbraid || eventData.wbraid;
   const gclid = data.gclid || eventData.gclid;
 
-  if (gclid) {
-    mappedData.gclid = gclid;
-  } else if (gbraid) {
-    mappedData.gbraid = gbraid;
-  } else if (wbraid) {
+  if (gclid) mappedData.gclid = gclid;
+  if (gbraid) mappedData.gbraid = gbraid;
+  if (!gclid && !gbraid && wbraid) {
     mappedData.wbraid = wbraid;
   }
 
@@ -743,8 +732,9 @@ function convertTimestampToISO(timestamp) {
   );
 }
 
-/**********************************************************************************************/
-// Helpers
+/*==============================================================================
+  Helpers
+==============================================================================*/
 
 function isHashed(value) {
   if (!value) return false;
@@ -755,7 +745,7 @@ function enc(data) {
   return encodeUriComponent(data || '');
 }
 
-function isConsentGivenOrNotRequired() {
+function isConsentGivenOrNotRequired(data, eventData) {
   if (data.adStorageConsent !== 'required') return true;
   if (eventData.consent_state) return !!eventData.consent_state.ad_storage;
   const xGaGcs = eventData['x-ga-gcs'] || ''; // x-ga-gcs is a string like "G110"
@@ -768,6 +758,8 @@ function log(rawDataToLog) {
     logDestinationsHandlers.console = logConsole;
   if (determinateIsLoggingEnabledForBigQuery())
     logDestinationsHandlers.bigQuery = logToBigQuery;
+
+  rawDataToLog.TraceId = getRequestHeader('trace-id');
 
   const keyMappings = {
     // No transformation for Console is needed.
@@ -820,11 +812,7 @@ function logToBigQuery(dataToLog) {
     dataToLog[p] = JSON.stringify(dataToLog[p]);
   });
 
-  const bigquery =
-    getType(BigQuery) === 'function'
-      ? BigQuery() /* Only during Unit Tests */
-      : BigQuery;
-  bigquery.insert(connectionInfo, [dataToLog], { ignoreUnknownValues: true });
+  BigQuery.insert(connectionInfo, [dataToLog], { ignoreUnknownValues: true });
 }
 
 function determinateIsLoggingEnabled() {
