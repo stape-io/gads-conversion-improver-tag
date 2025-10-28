@@ -20,7 +20,7 @@ const Promise = require('Promise');
 /**********************************************************************************************/
 
 const traceId = getRequestHeader('trace-id');
-
+const apiVersion = '22';
 const eventData = getAllEventData();
 
 if (!isConsentGivenOrNotRequired()) {
@@ -94,6 +94,10 @@ function sendConversionRequestForConversionAdjustment() {
     method: 'POST'
   };
 
+  if (data.authFlow === 'stape') {
+    options.headers['x-gads-api-version'] = apiVersion;
+  }
+  
   if (data.authFlow === 'own') {
     const auth = getGoogleAuth({
       scopes: ['https://www.googleapis.com/auth/adwords']
@@ -138,7 +142,6 @@ function sendConversionRequestForConversionAdjustment() {
 
 function getUrlForConversionAdjustment() {
   if (data.authFlow === 'own') {
-    const apiVersion = '22';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
@@ -251,6 +254,10 @@ function sendConversionRequestForOfflineConversion() {
     timeout: 15000
   };
 
+  if (data.authFlow === 'stape') {
+    options.headers['x-gads-api-version'] = apiVersion;
+  }
+
   if (data.authFlow === 'own') {
     const auth = getGoogleAuth({
       scopes: ['https://www.googleapis.com/auth/adwords']
@@ -299,7 +306,6 @@ function sendConversionRequestForOfflineConversion() {
 
 function getUrlForOfflineConversion() {
   if (data.authFlow === 'own') {
-    const apiVersion = '22';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
@@ -373,8 +379,6 @@ function getDataForOfflineConversion() {
     partialFailure: true,
     validateOnly:
       data.validateOnly === true || data.validateOnly === 'true' || false,
-    debugEnabled:
-      data.debugEnabled === true || data.debugEnabled === 'true' || false
   };
 }
 

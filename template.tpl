@@ -80,25 +80,6 @@ ___TEMPLATE_PARAMETERS___
   },
   {
     "type": "SELECT",
-    "name": "debugEnabled",
-    "displayName": "Debug Enabled",
-    "macrosInSelect": true,
-    "selectItems": [
-      {
-        "value": true,
-        "displayValue": "true"
-      },
-      {
-        "value": false,
-        "displayValue": "false"
-      }
-    ],
-    "simpleValueType": true,
-    "help": "Only for Offline Conversions Upload.\n\u003cbr/\u003e\nIf \u003cb\u003etrue\u003c/b\u003e, the API will perform all upload checks and return errors if any are found. \u003cbr /\u003e If \u003cb\u003efalse\u003c/b\u003e, it will perform only basic input validation, skip subsequent upload checks, and return success even if no click was found for the provided \u003ci\u003euserIdentifiers\u003c/i\u003e. \u003cbr /\u003e \u003ca href\u003d\"https://developers.google.com/google-ads/api/rest/reference/rest/v17/customers/uploadClickConversions?hl\u003den#request-body\"\u003eRead more\u003c/a\u003e.",
-    "defaultValue": false
-  },
-  {
-    "type": "SELECT",
     "name": "useOptimisticScenario",
     "displayName": "Use Optimistic Scenario",
     "macrosInSelect": true,
@@ -612,7 +593,7 @@ const Promise = require('Promise');
 /**********************************************************************************************/
 
 const traceId = getRequestHeader('trace-id');
-
+const apiVersion = '22';
 const eventData = getAllEventData();
 
 if (!isConsentGivenOrNotRequired()) {
@@ -686,6 +667,10 @@ function sendConversionRequestForConversionAdjustment() {
     method: 'POST'
   };
 
+  if (data.authFlow === 'stape') {
+    options.headers['x-gads-api-version'] = apiVersion;
+  }
+  
   if (data.authFlow === 'own') {
     const auth = getGoogleAuth({
       scopes: ['https://www.googleapis.com/auth/adwords']
@@ -730,7 +715,6 @@ function sendConversionRequestForConversionAdjustment() {
 
 function getUrlForConversionAdjustment() {
   if (data.authFlow === 'own') {
-    const apiVersion = '22';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
@@ -843,6 +827,10 @@ function sendConversionRequestForOfflineConversion() {
     timeout: 15000
   };
 
+  if (data.authFlow === 'stape') {
+    options.headers['x-gads-api-version'] = apiVersion;
+  }
+
   if (data.authFlow === 'own') {
     const auth = getGoogleAuth({
       scopes: ['https://www.googleapis.com/auth/adwords']
@@ -891,7 +879,6 @@ function sendConversionRequestForOfflineConversion() {
 
 function getUrlForOfflineConversion() {
   if (data.authFlow === 'own') {
-    const apiVersion = '22';
     return (
       'https://googleads.googleapis.com/v' +
       apiVersion +
@@ -965,8 +952,6 @@ function getDataForOfflineConversion() {
     partialFailure: true,
     validateOnly:
       data.validateOnly === true || data.validateOnly === 'true' || false,
-    debugEnabled:
-      data.debugEnabled === true || data.debugEnabled === 'true' || false
   };
 }
 
