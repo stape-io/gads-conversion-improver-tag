@@ -1,5 +1,7 @@
 homepage: 'https://stape.io/'
 versions:
+  - sha: 40907bc19c75e6c33471d1203c341e9132a43907
+    changeNotes: Added API Version header for Stape Auth Flow
   - sha: 08e3afd18c5f8c79ed65ae28b9edb06af502ac83
     changeNotes: Bump API version to v22
   - sha: dda722348ca686293483bf83885fd7556956da44
