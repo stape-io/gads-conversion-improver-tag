@@ -1,5 +1,8 @@
 homepage: 'https://stape.io/'
+documentation: 'https://github.com/stape-io/gads-conversion-improver-tag'
 versions:
+  - sha: 1ba5fddebffe853b261d67e860cf5d3e30ed084d
+    changeNotes: Added API Version header for Stape Auth Flow. Improved Click ID handling.
   - sha: 08e3afd18c5f8c79ed65ae28b9edb06af502ac83
     changeNotes: Bump API version to v22
   - sha: dda722348ca686293483bf83885fd7556956da44
