@@ -81,7 +81,7 @@ ___TEMPLATE_PARAMETERS___
       }
     ],
     "simpleValueType": true,
-    "help": "Only for Offline Conversions Upload.\n\u003cbr/\u003e\nIf \u003cb\u003etrue\u003c/b\u003e, the request is validated but not executed. Only errors are returned, not results.\u003cbr /\u003e \u003ca href\u003d\"https://developers.google.com/google-ads/api/rest/reference/rest/v17/customers/uploadClickConversions?hl\u003den#request-body\"\u003eRead more\u003c/a\u003e.",
+    "help": "Only for Offline Conversions Upload.\n\u003cbr/\u003e\nIf \u003cb\u003etrue\u003c/b\u003e, the request is validated but not executed. Only errors are returned, not results.\u003cbr /\u003e \u003ca href\u003d\"https://developers.google.com/google-ads/api/reference/rpc/v22/ConversionUploadService/UploadClickConversions?hl\u003den\u0026transport\u003drest#request-body\"\u003eRead more\u003c/a\u003e.",
     "defaultValue": false
   },
   {
@@ -335,7 +335,7 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "LABEL",
         "name": "cartDataLabel",
-        "displayName": "More info about the Cart Data can be found \u003ca href\u003d\"https://developers.google.com/google-ads/api/docs/conversions/upload-clicks#include_cart_data_in_conversions\" target\u003d\"_blank\"\u003eon this link\u003c/a\u003e."
+        "displayName": "More info about the Cart Data can be found \u003ca href\u003d\"https://developers.google.com/google-ads/api/reference/rpc/v22/ConversionUploadService/UploadClickConversions?hl\u003den\u0026transport\u003drest#CartData\"\u003eon this link\u003c/a\u003e."
       },
       {
         "type": "TEXT",
@@ -370,7 +370,7 @@ ___TEMPLATE_PARAMETERS___
         "name": "items",
         "displayName": "Items",
         "simpleValueType": true,
-        "help": "Data of the items purchased. \u003ca href\u003d\"https://developers.google.com/google-ads/api/rest/reference/rest/v17/customers/uploadClickConversions#Item\" target\u003d\"_blank\"\u003eMore info\u003c/a\u003e.\n\u003cbr/\u003e\u003cbr/\u003e\nIf not set, the tag will try to collect it from the Event Data parameter (\u003ci\u003eitems\u003c/i\u003e)."
+        "help": "Data of the items purchased. \u003ca href\u003d\"https://developers.google.com/google-ads/api/reference/rpc/v22/ConversionUploadService/UploadClickConversions?hl\u003den\u0026transport\u003drest#Item\"\u003eMore info\u003c/a\u003e.\n\u003cbr/\u003e\u003cbr/\u003e\nIf not set, the tag will try to collect it from the Event Data parameter (\u003ci\u003eitems\u003c/i\u003e)."
       }
     ]
   },
