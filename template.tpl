@@ -1,12 +1,4 @@
-﻿___TERMS_OF_SERVICE___
-
-By creating or modifying this file you agree to Google Tag Manager's Community
-Template Gallery Developer Terms of Service available at
-https://developers.google.com/tag-manager/gallery-tos (or such other URL as
-Google may provide), as modified from time to time.
-
-
-___INFO___
+﻿___INFO___
 
 {
   "type": "TAG",
@@ -577,24 +569,24 @@ ___TEMPLATE_PARAMETERS___
 
 ___SANDBOXED_JS_FOR_SERVER___
 
-const JSON = require('JSON');
-const sendHttpRequest = require('sendHttpRequest');
-const getContainerVersion = require('getContainerVersion');
-const logToConsole = require('logToConsole');
-const getRequestHeader = require('getRequestHeader');
+const BigQuery = require('BigQuery');
 const encodeUriComponent = require('encodeUriComponent');
 const getAllEventData = require('getAllEventData');
-const makeString = require('makeString');
-const makeNumber = require('makeNumber');
-const makeInteger = require('makeInteger');
+const getContainerVersion = require('getContainerVersion');
+const getGoogleAuth = require('getGoogleAuth');
+const getRequestHeader = require('getRequestHeader');
 const getTimestampMillis = require('getTimestampMillis');
 const getType = require('getType');
-const sha256Sync = require('sha256Sync');
+const JSON = require('JSON');
+const logToConsole = require('logToConsole');
+const makeInteger = require('makeInteger');
+const makeNumber = require('makeNumber');
+const makeString = require('makeString');
 const Math = require('Math');
 const Object = require('Object');
-const getGoogleAuth = require('getGoogleAuth');
-const BigQuery = require('BigQuery');
 const Promise = require('Promise');
+const sendHttpRequest = require('sendHttpRequest');
+const sha256Sync = require('sha256Sync');
 
 /*==============================================================================
 ==============================================================================*/
@@ -619,8 +611,7 @@ sendConversionRequestForConversionAdjustment()
     if (!bodyJson.partialFailureError) return;
 
     const message =
-      bodyJson.partialFailureError.details[0].errors[0].errorCode
-        .conversionAdjustmentUploadError;
+      bodyJson.partialFailureError.details[0].errors[0].errorCode.conversionAdjustmentUploadError;
     if (message === 'CONVERSION_NOT_FOUND') {
       return sendConversionRequestForOfflineConversion();
     }
@@ -656,10 +647,8 @@ function sendConversionRequestForConversionAdjustment() {
       Name: 'GAdsConversionImprover',
       Type: 'Message',
       EventName: makeString(data.conversionActionSource),
-      Message:
-        'Did not try to send Conversion Adjustment (ENHANCEMENT or RESTATEMENT).',
-      Reason:
-        'Missing required data: Transaction ID; or Conversion Value or User Identifiers.'
+      Message: 'Did not try to send Conversion Adjustment (ENHANCEMENT or RESTATEMENT).',
+      Reason: 'Missing required data: Transaction ID; or Conversion Value or User Identifiers.'
     });
     return Promise.create((resolve, reject) => reject());
   }
@@ -742,17 +731,11 @@ function getUrlForConversionAdjustment() {
 function getDataForConversionAdjustment() {
   let mappedData = {
     conversionAction:
-      'customers/' +
-      data.opCustomerId +
-      '/conversionActions/' +
-      data.conversionActionSource,
+      'customers/' + data.opCustomerId + '/conversionActions/' + data.conversionActionSource,
     adjustmentType: undefined
   };
 
-  mappedData = addConversionAttributionForConversionAdjustment(
-    eventData,
-    mappedData
-  );
+  mappedData = addConversionAttributionForConversionAdjustment(eventData, mappedData);
   mappedData = addUserIdentifiers(eventData, mappedData);
 
   // Required for ENHANCEMENT (Always); and for RESTATEMENT (If Conversion Type is WEBPAGE. Always the case here.)
@@ -761,10 +744,7 @@ function getDataForConversionAdjustment() {
   if (mappedData.restatementValue) {
     mappedData.userIdentifiers = undefined; // It doesn't accept userIdentifiers.
     mappedData.adjustmentType = 'RESTATEMENT';
-  } else if (
-    mappedData.userIdentifiers &&
-    mappedData.userIdentifiers.length > 0
-  ) {
+  } else if (mappedData.userIdentifiers && mappedData.userIdentifiers.length > 0) {
     // Note: Requires Enhanced Conversion managed through API in Google Ads (not GTM managed).
     // Note: Any restatement_value is ignored.
     mappedData.adjustmentType = 'ENHANCEMENT';
@@ -779,10 +759,7 @@ function getDataForConversionAdjustment() {
   };
 }
 
-function addConversionAttributionForConversionAdjustment(
-  eventData,
-  mappedData
-) {
+function addConversionAttributionForConversionAdjustment(eventData, mappedData) {
   // It must not use gclid, gbraid or wbraid in conjunction with Order ID.
   const adjustedValue = makeNumber(
     data.conversionValue ||
@@ -791,8 +768,7 @@ function addConversionAttributionForConversionAdjustment(
       eventData['x-ga-mp1-ev'] ||
       eventData['x-ga-mp1-tr']
   );
-  const currencyCode =
-    data.currencyCode || eventData.currencyCode || eventData.currency;
+  const currencyCode = data.currencyCode || eventData.currencyCode || eventData.currency;
 
   if (getType(adjustedValue) === 'number' && currencyCode) {
     mappedData.restatementValue = {
@@ -802,12 +778,9 @@ function addConversionAttributionForConversionAdjustment(
   }
 
   if (data.orderId) mappedData.orderId = makeString(data.orderId);
-  else if (eventData.orderId)
-    mappedData.orderId = makeString(eventData.orderId);
-  else if (eventData.order_id)
-    mappedData.orderId = makeString(eventData.order_id);
-  else if (eventData.transaction_id)
-    mappedData.orderId = makeString(eventData.transaction_id);
+  else if (eventData.orderId) mappedData.orderId = makeString(eventData.orderId);
+  else if (eventData.order_id) mappedData.orderId = makeString(eventData.order_id);
+  else if (eventData.transaction_id) mappedData.orderId = makeString(eventData.transaction_id);
 
   // No need to read it from anywhere. We are querying by Order ID.
   mappedData.adjustmentDateTime = getConversionDateTime();
@@ -841,8 +814,7 @@ function sendConversionRequestForOfflineConversion() {
   log({
     Name: 'GAdsConversionImprover',
     Type: 'Request',
-    EventName:
-      'Offline Conversion ' + makeString(data.conversionActionDestination),
+    EventName: 'Offline Conversion ' + makeString(data.conversionActionDestination),
     RequestMethod: 'POST',
     RequestUrl: postUrlForOfflineConversion,
     RequestBody: postBodyForOfflineConversion
@@ -857,8 +829,7 @@ function sendConversionRequestForOfflineConversion() {
     log({
       Name: 'GAdsConversionImprover',
       Type: 'Response',
-      EventName:
-        'Offline Conversion ' + makeString(data.conversionActionDestination),
+      EventName: 'Offline Conversion ' + makeString(data.conversionActionDestination),
       ResponseStatusCode: result.statusCode,
       ResponseHeaders: result.headers,
       ResponseBody: result.body
@@ -903,10 +874,7 @@ function getDataForOfflineConversion() {
   let mappedData = {
     conversionEnvironment: 'WEB',
     conversionAction:
-      'customers/' +
-      data.opCustomerId +
-      '/conversionActions/' +
-      data.conversionActionDestination
+      'customers/' + data.opCustomerId + '/conversionActions/' + data.conversionActionDestination
   };
 
   if (data.customDataList) {
@@ -926,10 +894,7 @@ function getDataForOfflineConversion() {
     mappedData.customVariables = customVariables;
   }
 
-  mappedData = addConversionAttributionForOfflineConversion(
-    eventData,
-    mappedData
-  );
+  mappedData = addConversionAttributionForOfflineConversion(eventData, mappedData);
   mappedData = addCartDataForOfflineConversion(eventData, mappedData);
   mappedData = addUserIdentifiers(eventData, mappedData);
   mappedData = addConsentDataForOfflineConversion(mappedData);
@@ -947,8 +912,7 @@ function getDataForOfflineConversion() {
   return {
     conversions: [mappedData],
     partialFailure: true,
-    validateOnly:
-      data.validateOnly === true || data.validateOnly === 'true' || false
+    validateOnly: data.validateOnly === true || data.validateOnly === 'true' || false
   };
 }
 
@@ -964,13 +928,9 @@ function addConversionAttributionForOfflineConversion(eventData, mappedData) {
   }
 
   if (data.conversionDateTime) {
-    mappedData.conversionDateTime = getConversionDateTime(
-      data.conversionDateTime
-    );
+    mappedData.conversionDateTime = getConversionDateTime(data.conversionDateTime);
   } else if (eventData.conversionDateTime) {
-    mappedData.conversionDateTime = getConversionDateTime(
-      eventData.conversionDateTime
-    );
+    mappedData.conversionDateTime = getConversionDateTime(eventData.conversionDateTime);
   } else mappedData.conversionDateTime = getConversionDateTime();
 
   return mappedData;
@@ -996,14 +956,10 @@ function addCartDataForOfflineConversion(eventData, mappedData) {
 
       if (d.item_price) {
         item.unitPrice = makeNumber(d.item_price);
-        valueFromItems += item.quantity
-          ? item.quantity * item.unitPrice
-          : item.unitPrice;
+        valueFromItems += item.quantity ? item.quantity * item.unitPrice : item.unitPrice;
       } else if (d.price) {
         item.unitPrice = makeNumber(d.price);
-        valueFromItems += item.quantity
-          ? item.quantity * item.unitPrice
-          : item.unitPrice;
+        valueFromItems += item.quantity ? item.quantity * item.unitPrice : item.unitPrice;
       }
 
       items[i] = item;
@@ -1022,51 +978,39 @@ function addCartDataForOfflineConversion(eventData, mappedData) {
     if (items) mappedData.cartData.items = items;
 
     if (data.merchantId) mappedData.cartData.merchantId = data.merchantId;
-    else if (eventData.merchantId)
-      mappedData.cartData.merchantId = eventData.merchantId;
+    else if (eventData.merchantId) mappedData.cartData.merchantId = eventData.merchantId;
 
-    if (data.feedCountryCode)
-      mappedData.cartData.feedCountryCode = data.feedCountryCode;
+    if (data.feedCountryCode) mappedData.cartData.feedCountryCode = data.feedCountryCode;
     else if (eventData.feedCountryCode)
       mappedData.cartData.feedCountryCode = eventData.feedCountryCode;
 
-    if (data.feedLanguageCode)
-      mappedData.cartData.feedLanguageCode = data.feedLanguageCode;
+    if (data.feedLanguageCode) mappedData.cartData.feedLanguageCode = data.feedLanguageCode;
     else if (eventData.feedLanguageCode)
       mappedData.cartData.feedLanguageCode = eventData.feedLanguageCode;
 
     if (data.localTransactionCost)
-      mappedData.cartData.localTransactionCost = makeNumber(
-        data.localTransactionCost
-      );
+      mappedData.cartData.localTransactionCost = makeNumber(data.localTransactionCost);
     else if (eventData.localTransactionCost)
       mappedData.cartData.localTransactionCost = eventData.localTransactionCost;
   }
 
   if (data.orderId) mappedData.orderId = makeString(data.orderId);
-  else if (eventData.orderId)
-    mappedData.orderId = makeString(eventData.orderId);
-  else if (eventData.order_id)
-    mappedData.orderId = makeString(eventData.order_id);
-  else if (eventData.transaction_id)
-    mappedData.orderId = makeString(eventData.transaction_id);
+  else if (eventData.orderId) mappedData.orderId = makeString(eventData.orderId);
+  else if (eventData.order_id) mappedData.orderId = makeString(eventData.order_id);
+  else if (eventData.transaction_id) mappedData.orderId = makeString(eventData.transaction_id);
 
-  if (data.conversionValue)
-    mappedData.conversionValue = makeNumber(data.conversionValue);
-  else if (eventData.value)
-    mappedData.conversionValue = makeNumber(eventData.value);
+  if (data.conversionValue) mappedData.conversionValue = makeNumber(data.conversionValue);
+  else if (eventData.value) mappedData.conversionValue = makeNumber(eventData.value);
   else if (eventData.conversionValue)
     mappedData.conversionValue = makeNumber(eventData.conversionValue);
   else if (eventData['x-ga-mp1-ev'])
     mappedData.conversionValue = makeNumber(eventData['x-ga-mp1-ev']);
   else if (eventData['x-ga-mp1-tr'])
     mappedData.conversionValue = makeNumber(eventData['x-ga-mp1-tr']);
-  else if (valueFromItems)
-    mappedData.conversionValue = makeNumber(valueFromItems);
+  else if (valueFromItems) mappedData.conversionValue = makeNumber(valueFromItems);
 
   if (data.currencyCode) mappedData.currencyCode = data.currencyCode;
-  else if (eventData.currencyCode)
-    mappedData.currencyCode = eventData.currencyCode;
+  else if (eventData.currencyCode) mappedData.currencyCode = eventData.currencyCode;
   else if (eventData.currency) mappedData.currencyCode = eventData.currency;
   else if (currencyFromItems) mappedData.currencyCode = currencyFromItems;
 
@@ -1102,8 +1046,7 @@ function addUserIdentifiers(eventData, mappedData) {
   const usedIdentifiers = [];
 
   if (getType(eventData.user_data) === 'object') {
-    userEventData =
-      eventData.user_data || eventData.user_properties || eventData.user;
+    userEventData = eventData.user_data || eventData.user_properties || eventData.user;
   }
 
   if (data.userDataList) {
@@ -1111,8 +1054,7 @@ function addUserIdentifiers(eventData, mappedData) {
 
     data.userDataList.forEach((d) => {
       const valueType = getType(d.value);
-      const isValidValue =
-        ['undefined', 'null'].indexOf(valueType) === -1 && d.value !== '';
+      const isValidValue = ['undefined', 'null'].indexOf(valueType) === -1 && d.value !== '';
       if (isValidValue) {
         const identifier = {};
         identifier[d.name] = hashData(d.name, d.value);
@@ -1130,8 +1072,7 @@ function addUserIdentifiers(eventData, mappedData) {
   else if (eventData.email) hashedEmail = eventData.email;
   else if (eventData.email_address) hashedEmail = eventData.email_address;
   else if (userEventData.email) hashedEmail = userEventData.email;
-  else if (userEventData.email_address)
-    hashedEmail = userEventData.email_address;
+  else if (userEventData.email_address) hashedEmail = userEventData.email_address;
 
   if (usedIdentifiers.indexOf('hashedEmail') === -1 && hashedEmail) {
     userIdentifiersMapped.push({
@@ -1143,13 +1084,9 @@ function addUserIdentifiers(eventData, mappedData) {
   if (eventData.phone) hashedPhoneNumber = eventData.phone;
   else if (eventData.phone_number) hashedPhoneNumber = eventData.phone_number;
   else if (userEventData.phone) hashedPhoneNumber = userEventData.phone;
-  else if (userEventData.phone_number)
-    hashedPhoneNumber = userEventData.phone_number;
+  else if (userEventData.phone_number) hashedPhoneNumber = userEventData.phone_number;
 
-  if (
-    usedIdentifiers.indexOf('hashedPhoneNumber') === -1 &&
-    hashedPhoneNumber
-  ) {
+  if (usedIdentifiers.indexOf('hashedPhoneNumber') === -1 && hashedPhoneNumber) {
     userIdentifiersMapped.push({
       hashedPhoneNumber: hashData('hashedPhoneNumber', hashedPhoneNumber),
       userIdentifierSource: 'UNSPECIFIED'
@@ -1206,8 +1143,7 @@ function hashData(key, value) {
   if (type === 'object') {
     return Object.keys(value).reduce((acc, val) => {
       const noHashNeeded =
-        key === 'addressInfo' &&
-        ['city', 'state', 'countryCode', 'postalCode'].indexOf(val) !== -1;
+        key === 'addressInfo' && ['city', 'state', 'countryCode', 'postalCode'].indexOf(val) !== -1;
       acc[val] = noHashNeeded ? value[val] : hashData(key, value[val]);
       return acc;
     }, {});
@@ -1220,15 +1156,7 @@ function hashData(key, value) {
   value = makeString(value).trim().toLowerCase();
 
   if (key === 'hashedPhoneNumber') {
-    value = value
-      .split(' ')
-      .join('')
-      .split('-')
-      .join('')
-      .split('(')
-      .join('')
-      .split(')')
-      .join('');
+    value = value.split(' ').join('').split('-').join('').split('(').join('').split(')').join('');
   } else if (key === 'hashedEmail') {
     const valueParts = value.split('@');
 
@@ -1333,10 +1261,8 @@ function isConsentGivenOrNotRequired(data, eventData) {
 
 function log(rawDataToLog) {
   const logDestinationsHandlers = {};
-  if (determinateIsLoggingEnabled())
-    logDestinationsHandlers.console = logConsole;
-  if (determinateIsLoggingEnabledForBigQuery())
-    logDestinationsHandlers.bigQuery = logToBigQuery;
+  if (determinateIsLoggingEnabled()) logDestinationsHandlers.console = logConsole;
+  if (determinateIsLoggingEnabledForBigQuery()) logDestinationsHandlers.bigQuery = logToBigQuery;
 
   rawDataToLog.TraceId = getRequestHeader('trace-id');
 
