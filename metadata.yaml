@@ -1,6 +1,8 @@
 homepage: 'https://stape.io/'
 documentation: 'https://github.com/stape-io/gads-conversion-improver-tag'
 versions:
+  - sha: 26d6859d5a46a177cb703f6ce709cfaad0f3212c1
+    changeNotes: Updated code organization.
   - sha: e2d530bc384d3b54f8d7f4151e0089fde4ce77a6
     changeNotes: Fixed help-links for up-to-date documentation.
   - sha: 1ba5fddebffe853b261d67e860cf5d3e30ed084d
